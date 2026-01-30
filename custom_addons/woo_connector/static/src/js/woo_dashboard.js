@@ -159,54 +159,10 @@ export class WooDashboard extends Component {
             return { ...row, value, pct };
         });
 
-        const paymentRows = payments.map((p) => {
-            const amount = Number(p.amount || 0);
-            const pct = totalSales ? Math.round((amount / totalSales) * 100) : 0;
-            return {
-                title: p.title || "Unknown",
-                count: p.count || 0,
-                amount,
-                pct,
-            };
-        });
-
-        const ordersSeries = intervals.map(
-            (i) => Number(i?.subtotals?.orders_count || 0)
-        );
-        const revenueSeries = intervals.map(
-            (i) => Number(i?.subtotals?.total_sales || 0)
-        );
-
-        const ordersLine = this.buildSparkline(ordersSeries, 260, 60);
-        const revenueLine = this.buildSparkline(revenueSeries, 260, 60);
-
-        const couponPct = totalProducts
-            ? Math.min(100, Math.round((totalCoupons / totalProducts) * 100))
-            : 0;
-
         return {
             statusRows,
-            paymentRows,
             revenuePct: totalSales ? 100 : 0,
-            ordersLine,
-            revenueLine,
-            couponPct,
-            couponCount: totalCoupons,
         };
-    }
-
-    buildSparkline(series, width, height) {
-        if (!series.length) return "";
-        const max = Math.max(...series, 1);
-        const min = Math.min(...series, 0);
-        const range = Math.max(1, max - min);
-        const step = series.length > 1 ? width / (series.length - 1) : width;
-
-        return series.map((v, idx) => {
-            const x = Math.round(idx * step);
-            const y = Math.round(height - ((v - min) / range) * height);
-            return `${x},${y}`;
-        }).join(" ");
     }
 }
 

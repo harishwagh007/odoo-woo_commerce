@@ -97,25 +97,6 @@
         </div>
       </div>
       <div class="pulse-card">
-        <div class="pulse-title">Payments Split</div>
-        <div class="pulse-list">
-          <div class="pulse-row" t-foreach="state.viz.paymentRows" t-as="row" t-key="row.title">
-            <div class="pulse-label"><t t-esc="row.title"/></div>
-            <div class="pulse-bar">
-              <div class="pulse-fill alt" t-att-style="'width:' + row.pct + '%'"/>
-            </div>
-            <div class="pulse-value">$<t t-esc="row.amount"/></div>
-          </div>
-        </div>
-        <div class="pulse-tiles">
-          <div class="tile" t-foreach="state.viz.paymentRows" t-as="row" t-key="row.title"
-               t-att-style="'--tile:' + row.pct + '%'">
-            <div class="tile-label"><t t-esc="row.title"/></div>
-            <div class="tile-bar"><span t-att-style="'width:' + row.pct + '%'"/></div>
-          </div>
-        </div>
-      </div>
-      <div class="pulse-card">
         <div class="pulse-title">Revenue Ring</div>
         <div class="ring-wrap">
           <div class="ring" t-att-style="'--ring:' + state.viz.revenuePct + '%'">
@@ -131,31 +112,6 @@
           </div>
         </div>
         <div class="ring-glow"></div>
-      </div>
-    </div>
-
-    <!-- TREND LAB -->
-    <div class="woo-trends">
-      <div class="trend-card">
-        <div class="trend-title">Orders Trend</div>
-        <svg class="spark" viewBox="0 0 260 60" preserveAspectRatio="none">
-          <polyline t-att-points="state.viz.ordersLine"/>
-        </svg>
-      </div>
-      <div class="trend-card">
-        <div class="trend-title">Revenue Trend</div>
-        <svg class="spark alt" viewBox="0 0 260 60" preserveAspectRatio="none">
-          <polyline t-att-points="state.viz.revenueLine"/>
-        </svg>
-      </div>
-      <div class="trend-card">
-        <div class="trend-title">Coupons Meter</div>
-        <div class="meter">
-          <div class="meter-fill" t-att-style="'width:' + state.viz.couponPct + '%'"></div>
-        </div>
-        <div class="meter-meta">
-          Active coupons: <strong><t t-esc="state.viz.couponCount"/></strong>
-        </div>
       </div>
     </div>
 

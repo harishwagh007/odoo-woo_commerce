@@ -179,10 +179,6 @@
     animation: glide 0.8s ease-out;
 }
 
-.pulse-fill.alt {
-    background: linear-gradient(90deg, #5fcf80, #b6f4c1);
-}
-
 .pulse-value {
     text-align: right;
     font-weight: 600;
@@ -206,38 +202,6 @@
     border-radius: 50%;
     transform: translate(calc(var(--dot) - 4px), -50%);
     box-shadow: 0 0 0 4px rgba(95,107,255,0.15);
-}
-
-.pulse-tiles {
-    margin-top: 12px;
-    display: grid;
-    gap: 8px;
-}
-
-.tile {
-    background: #f8f9ff;
-    border: 1px solid #eef0f8;
-    border-radius: 10px;
-    padding: 6px 8px;
-}
-
-.tile-label {
-    font-size: 11px;
-    color: #6a7386;
-    margin-bottom: 4px;
-}
-
-.tile-bar {
-    height: 6px;
-    border-radius: 999px;
-    background: #eef1fb;
-    overflow: hidden;
-}
-
-.tile-bar span {
-    display: block;
-    height: 100%;
-    background: linear-gradient(90deg, #5fcf80, #b6f4c1);
 }
 
 .ring-wrap {
@@ -295,59 +259,6 @@
     background: radial-gradient(circle, rgba(95,107,255,0.2), rgba(95,107,255,0));
     border-radius: 50%;
     pointer-events: none;
-}
-
-.woo-trends {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-    gap: 16px;
-    margin-top: 18px;
-}
-
-.trend-card {
-    background: #ffffff;
-    border: 1px solid #e6e9f2;
-    border-radius: 16px;
-    padding: 16px;
-}
-
-.trend-title {
-    font-size: 13px;
-    font-weight: 700;
-    color: #2b2f45;
-    margin-bottom: 10px;
-}
-
-.spark {
-    width: 100%;
-    height: 70px;
-    fill: none;
-    stroke: #5f6bff;
-    stroke-width: 3;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
-
-.spark.alt {
-    stroke: #5fcf80;
-}
-
-.meter {
-    height: 10px;
-    border-radius: 999px;
-    background: #eef1fb;
-    overflow: hidden;
-}
-
-.meter-fill {
-    height: 100%;
-    background: linear-gradient(90deg, #f5b74a, #ffd98f);
-}
-
-.meter-meta {
-    margin-top: 8px;
-    font-size: 12px;
-    color: #5e667a;
 }
 
 @keyframes glide {

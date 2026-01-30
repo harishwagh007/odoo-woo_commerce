@@ -3,7 +3,8 @@ from odoo.exceptions import UserError
 import requests
 from requests.exceptions import RequestException, Timeout
 from woocommerce import API
-from datetime import datetime
+from datetime import datetime, timedelta
+from dateutil.relativedelta import relativedelta
 import logging
 from datetime import datetime
 
@@ -235,12 +236,12 @@ class WooInstance(models.Model):
                 not force
                 and status.last_sync
                 and fields.Datetime.now()
-                < status.last_sync + fields.DateUtils.minutes(10)
+                < status.last_sync + timedelta(minutes=10)
         ):
             return False
 
         # 📝 CREATE AUTO SYNC REPORT (START)
-            report = self.env["woo.report"].create({
+        report = self.env["woo.report"].create({
                 "instance_id": self.id,
                 "operation": "Auto Sync",
                 "status": "running",
@@ -1252,7 +1253,11 @@ class WooInstance(models.Model):
             ("active", "=", True),
         ])
 
-        _logger.info("Woo Cron started for %s instances", len(instances))
+        _logger.info(
+            "Woo Cron (auto_sync_all) started for %s instances: %s",
+            len(instances),
+            ", ".join(instances.mapped("name")) or "none",
+        )
 
         for instance in instances:
             try:
@@ -1274,56 +1279,119 @@ class WooInstance(models.Model):
 
         now = fields.Datetime.now()
         if interval_type == "hours":
-            return now >= last_sync + fields.DateUtils.hours(1)
+            return now >= last_sync + timedelta(hours=1)
         if interval_type == "days":
-            return now >= last_sync + fields.DateUtils.days(1)
+            return now >= last_sync + timedelta(days=1)
         if interval_type == "weeks":
-            return now >= last_sync + fields.DateUtils.days(7)
+            return now >= last_sync + timedelta(days=7)
         if interval_type == "months":
-            return now >= last_sync + fields.DateUtils.days(30)
+            return now >= last_sync + relativedelta(months=1)
         return False
 
     def cron_auto_sync(self):
         now = fields.Datetime.now()
         instances = self.search([("active", "=", True)])
+        _logger.info(
+            "Woo Cron (auto_sync) tick for %s instances: %s",
+            len(instances),
+            ", ".join(instances.mapped("name")) or "none",
+        )
 
         for instance in instances:
+            report = False
+            executed = []
             try:
                 if instance.auto_product_sync and instance._is_time_to_sync(
                     instance.last_product_sync_at,
                     instance.auto_product_interval_type,
                 ):
+                    if not report:
+                        report = self.env["woo.report"].create({
+                            "instance_id": instance.id,
+                            "operation": "Auto Sync (Cron)",
+                            "status": "running",
+                            "message": "Auto sync started",
+                            "auto": True,
+                            "mode": "cron",
+                        })
                     instance.action_sync_products()
                     instance.last_product_sync_at = now
+                    executed.append("products")
 
                 if instance.auto_customer_sync and instance._is_time_to_sync(
                     instance.last_customer_sync_at,
                     instance.auto_customer_interval_type,
                 ):
                     # Customers are derived from orders; re-sync orders.
+                    if not report:
+                        report = self.env["woo.report"].create({
+                            "instance_id": instance.id,
+                            "operation": "Auto Sync (Cron)",
+                            "status": "running",
+                            "message": "Auto sync started",
+                            "auto": True,
+                            "mode": "cron",
+                        })
                     instance.action_sync_orders()
                     instance.last_customer_sync_at = now
+                    executed.append("customers")
 
                 if instance.auto_order_sync and instance._is_time_to_sync(
                     instance.last_order_sync_at,
                     instance.auto_order_interval_type,
                 ):
+                    if not report:
+                        report = self.env["woo.report"].create({
+                            "instance_id": instance.id,
+                            "operation": "Auto Sync (Cron)",
+                            "status": "running",
+                            "message": "Auto sync started",
+                            "auto": True,
+                            "mode": "cron",
+                        })
                     instance.action_sync_orders()
                     instance.last_order_sync_at = now
+                    executed.append("orders")
 
                 if instance.auto_category_sync and instance._is_time_to_sync(
                     instance.last_category_sync_at,
                     instance.auto_category_interval_type,
                 ):
+                    if not report:
+                        report = self.env["woo.report"].create({
+                            "instance_id": instance.id,
+                            "operation": "Auto Sync (Cron)",
+                            "status": "running",
+                            "message": "Auto sync started",
+                            "auto": True,
+                            "mode": "cron",
+                        })
                     instance.action_sync_categories()
                     instance.last_category_sync_at = now
+                    executed.append("categories")
 
                 if instance.auto_coupon_sync and instance._is_time_to_sync(
                     instance.last_coupon_sync_at,
                     instance.auto_coupon_interval_type,
                 ):
+                    if not report:
+                        report = self.env["woo.report"].create({
+                            "instance_id": instance.id,
+                            "operation": "Auto Sync (Cron)",
+                            "status": "running",
+                            "message": "Auto sync started",
+                            "auto": True,
+                            "mode": "cron",
+                        })
                     instance.action_sync_coupons()
                     instance.last_coupon_sync_at = now
+                    executed.append("coupons")
+
+                if report:
+                    report.write({
+                        "status": "success",
+                        "message": "Auto sync completed: %s" % ", ".join(executed),
+                    })
 
             except Exception as e:
                 _logger.error(
@@ -1331,6 +1399,20 @@ class WooInstance(models.Model):
                     instance.name,
                     e,
                 )
+                if report:
+                    report.write({
+                        "status": "failed",
+                        "message": str(e),
+                    })
+                else:
+                    self.env["woo.report"].create({
+                        "instance_id": instance.id,
+                        "operation": "Auto Sync (Cron)",
+                        "status": "failed",
+                        "message": str(e),
+                        "auto": True,
+                        "mode": "cron",
+                    })
 
 
 
